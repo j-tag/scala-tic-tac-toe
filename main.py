@@ -83,110 +83,11 @@ def inspect_message(message):
     print('New message arrived:')
     print(message)
     json_message = json.loads(message)
-    if json_message['type'] == 'mladenPivotPointDataUpdate':
-        on_mladen_pivot_point_data_update(json_message)
+    if json_message['type'] == 'mladenOpenPositionPredictionRequest':
+        on_mladen_open_position_prediction_request(json_message)
 
 
-s4_h1_prev = 0.0
-s3_h1_prev = 0.0
-s2_h1_prev = 0.0
-s1_h1_prev = 0.0
-p_h1_prev = 0.0
-r1_h1_prev = 0.0
-r2_h1_prev = 0.0
-r3_h1_prev = 0.0
-r4_h1_prev = 0.0
-
-s4_h4_prev = 0.0
-s3_h4_prev = 0.0
-s2_h4_prev = 0.0
-s1_h4_prev = 0.0
-p_h4_prev = 0.0
-r1_h4_prev = 0.0
-r2_h4_prev = 0.0
-r3_h4_prev = 0.0
-r4_h4_prev = 0.0
-
-s4_d1_prev = 0.0
-s3_d1_prev = 0.0
-s2_d1_prev = 0.0
-s1_d1_prev = 0.0
-p_d1_prev = 0.0
-r1_d1_prev = 0.0
-r2_d1_prev = 0.0
-r3_d1_prev = 0.0
-r4_d1_prev = 0.0
-
-
-def update_mladen_prev(s4_h1, s3_h1, s2_h1, s1_h1, p_h1, r1_h1, r2_h1, r3_h1, r4_h1,
-                       s4_h4, s3_h4, s2_h4, s1_h4, p_h4, r1_h4, r2_h4, r3_h4, r4_h4,
-                       s4_d1, s3_d1, s2_d1, s1_d1, p_d1, r1_d1, r2_d1, r3_d1, r4_d1):
-    global s4_h1_prev
-    global s3_h1_prev
-    global s2_h1_prev
-    global s1_h1_prev
-    global p_h1_prev
-    global r1_h1_prev
-    global r2_h1_prev
-    global r3_h1_prev
-    global r4_h1_prev
-
-    global s4_h4_prev
-    global s3_h4_prev
-    global s2_h4_prev
-    global s1_h4_prev
-    global p_h4_prev
-    global r1_h4_prev
-    global r2_h4_prev
-    global r3_h4_prev
-    global r4_h4_prev
-
-    global s4_d1_prev
-    global s3_d1_prev
-    global s2_d1_prev
-    global s1_d1_prev
-    global p_d1_prev
-    global r1_d1_prev
-    global r2_d1_prev
-    global r3_d1_prev
-    global r4_d1_prev
-
-    # Update previous values if changed
-    if s4_h1_prev != s4_h1 or s3_h1_prev != s3_h1 or s2_h1_prev != s2_h1 or \
-            s1_h1_prev != s1_h1 or p_h1_prev != p_h1 or r1_h1_prev != r1_h1 or \
-            r2_h1_prev != r2_h1 or r3_h1_prev != r3_h1 or r4_h1_prev != r4_h1:
-        s4_h1_prev = s4_h1
-        s3_h1_prev = s3_h1
-        s2_h1_prev = s2_h1
-        s1_h1_prev = s1_h1
-        p_h1_prev = p_h1
-        r1_h1_prev = r1_h1
-        r2_h1_prev = r2_h1
-        r3_h1_prev = r3_h1
-        r4_h1_prev = r4_h1
-
-        s4_h4_prev = s4_h4
-        s3_h4_prev = s3_h4
-        s2_h4_prev = s2_h4
-        s1_h4_prev = s1_h4
-        p_h4_prev = p_h4
-        r1_h4_prev = r1_h4
-        r2_h4_prev = r2_h4
-        r3_h4_prev = r3_h4
-        r4_h4_prev = r4_h4
-
-        s4_d1_prev = s4_d1
-        s3_d1_prev = s3_d1
-        s2_d1_prev = s2_d1
-        s1_d1_prev = s1_d1
-        p_d1_prev = p_d1
-        r1_d1_prev = r1_d1
-        r2_d1_prev = r2_d1
-        r3_d1_prev = r3_d1
-        r4_d1_prev = r4_d1
-
-
-def on_mladen_pivot_point_data_update(json_message):
+def on_mladen_open_position_prediction_request(json_message):
     """
     Please Enter the parameters according to the following format :
     ['open','high','low','close','P_Level Pivot 1H','S_Level_1 Pivot 1H','S_Level_2 Pivot 1H',
@@ -206,77 +107,76 @@ def on_mladen_pivot_point_data_update(json_message):
                                    'r3 1h_prev','r4 1h_prev','buy','sell']
     """
 
-    # Sell
-    params = [json_message['open'], json_message['high'], json_message['low'], json_message['close'],
-              json_message['pivotH1'], json_message['s1H1'], json_message['s2H1'], json_message['s3H1'],
-              json_message['s4H1'], json_message['r1H1'], json_message['r2H1'], json_message['r3H1'],
-              json_message['r4H1'], json_message['pivotD1'], json_message['s1D1'], json_message['s2D1'],
-              json_message['s3D1'], json_message['s4D1'], json_message['r1D1'], json_message['r2D1'],
-              json_message['r3D1'], json_message['r4D1'], json_message['pivotH4'], json_message['s1H4'],
-              json_message['s2H4'], json_message['s3H4'], json_message['s4H4'], json_message['r1H4'],
-              json_message['r2H4'], json_message['r3H4'], json_message['r4H4'], p_d1_prev, s1_d1_prev,
-              s2_d1_prev, s3_d1_prev, s4_d1_prev, r1_d1_prev, r2_d1_prev, r3_d1_prev, r4_d1_prev, p_h4_prev,
-              s1_h4_prev, s2_h4_prev, s3_h4_prev, s4_h4_prev, r1_h4_prev, r2_h4_prev, r3_h4_prev,
-              r4_h4_prev, p_h1_prev, s1_h1_prev, s2_h1_prev, s3_h1_prev, s4_h1_prev, r1_h1_prev,
-              r2_h1_prev, r3_h1_prev, r4_h1_prev, 0, 1]
-    print(params)
+    if json_message['side'] == 'sell':
+        # Sell
+        params = [json_message['open'], json_message['high'], json_message['low'], json_message['close'],
+                  json_message['pivotH1'], json_message['s1H1'], json_message['s2H1'], json_message['s3H1'],
+                  json_message['s4H1'], json_message['r1H1'], json_message['r2H1'], json_message['r3H1'],
+                  json_message['r4H1'], json_message['pivotD1'], json_message['s1D1'], json_message['s2D1'],
+                  json_message['s3D1'], json_message['s4D1'], json_message['r1D1'], json_message['r2D1'],
+                  json_message['r3D1'], json_message['r4D1'], json_message['pivotH4'], json_message['s1H4'],
+                  json_message['s2H4'], json_message['s3H4'], json_message['s4H4'], json_message['r1H4'],
+                  json_message['r2H4'], json_message['r3H4'], json_message['r4H4'], json_message['prevPivotD1'],
+                  json_message['prevS1D1'], json_message['prevS2D1'], json_message['prevS3D1'],
+                  json_message['prevS4D1'], json_message['prevR1D1'], json_message['prevR2D1'],
+                  json_message['prevR3D1'], json_message['prevR4D1'], json_message['prevPivotH4'],
+                  json_message['prevS1H4'], json_message['prevS2H4'], json_message['prevS3H4'],
+                  json_message['prevS4H4'], json_message['prevR1H4'], json_message['prevR2H4'],
+                  json_message['prevR3H4'], json_message['prevR4H4'], json_message['prevPivotH1'],
+                  json_message['prevS1H1'], json_message['prevS2H1'], json_message['prevS3H1'],
+                  json_message['prevS4H1'], json_message['prevR1H1'], json_message['prevR2H1'],
+                  json_message['prevR3H1'], json_message['prevR4H1'], 0, 1]
+        print(params)
 
-    filename = 'finalized_model.sav'
-    loaded_model = pickle.load(open(filename, 'rb'))
-    predicted = prediction(params, loaded_model)
-    print(predicted[0])
+        # Load pretrained model and predict te result using it
+        filename = 'finalized_model.sav'
+        loaded_model = pickle.load(open(filename, 'rb'))
+        predicted = prediction(params, loaded_model)
+        print(predicted[0])
+        # If prediction resulted true, we can send sell command
+        if predicted[0] != 0:
+            json_prediction_message = {
+                "type": "mladenOpenPositionPredictionResponse",
+                "clientSideId": json_message['clientSideId'],
+                "predictionResult": predicted[0]
+            }
+            socket_send(json.dumps(json_prediction_message))
 
-    # If prediction resulted true, we can send sell command
-    if predicted[0] != 0:
-        send_mladen_sell_command()
+    elif json_message['side'] == 'buy':
+        # Buy
+        params = [json_message['open'], json_message['high'], json_message['low'], json_message['close'],
+                  json_message['pivotH1'], json_message['s1H1'], json_message['s2H1'], json_message['s3H1'],
+                  json_message['s4H1'], json_message['r1H1'], json_message['r2H1'], json_message['r3H1'],
+                  json_message['r4H1'], json_message['pivotD1'], json_message['s1D1'], json_message['s2D1'],
+                  json_message['s3D1'], json_message['s4D1'], json_message['r1D1'], json_message['r2D1'],
+                  json_message['r3D1'], json_message['r4D1'], json_message['pivotH4'], json_message['s1H4'],
+                  json_message['s2H4'], json_message['s3H4'], json_message['s4H4'], json_message['r1H4'],
+                  json_message['r2H4'], json_message['r3H4'], json_message['r4H4'], json_message['prevPivotD1'],
+                  json_message['prevS1D1'], json_message['prevS2D1'], json_message['prevS3D1'],
+                  json_message['prevS4D1'], json_message['prevR1D1'], json_message['prevR2D1'],
+                  json_message['prevR3D1'], json_message['prevR4D1'], json_message['prevPivotH4'],
+                  json_message['prevS1H4'], json_message['prevS2H4'], json_message['prevS3H4'],
+                  json_message['prevS4H4'], json_message['prevR1H4'], json_message['prevR2H4'],
+                  json_message['prevR3H4'], json_message['prevR4H4'], json_message['prevPivotH1'],
+                  json_message['prevS1H1'], json_message['prevS2H1'], json_message['prevS3H1'],
+                  json_message['prevS4H1'], json_message['prevR1H1'], json_message['prevR2H1'],
+                  json_message['prevR3H1'], json_message['prevR4H1'], 1, 0]
 
-    # Buy
-    params = [json_message['open'], json_message['high'], json_message['low'], json_message['close'],
-              json_message['pivotH1'], json_message['s1H1'], json_message['s2H1'], json_message['s3H1'],
-              json_message['s4H1'], json_message['r1H1'], json_message['r2H1'], json_message['r3H1'],
-              json_message['r4H1'], json_message['pivotD1'], json_message['s1D1'], json_message['s2D1'],
-              json_message['s3D1'], json_message['s4D1'], json_message['r1D1'], json_message['r2D1'],
-              json_message['r3D1'], json_message['r4D1'], json_message['pivotH4'], json_message['s1H4'],
-              json_message['s2H4'], json_message['s3H4'], json_message['s4H4'], json_message['r1H4'],
-              json_message['r2H4'], json_message['r3H4'], json_message['r4H4'], p_d1_prev, s1_d1_prev,
-              s2_d1_prev, s3_d1_prev, s4_d1_prev, r1_d1_prev, r2_d1_prev, r3_d1_prev, r4_d1_prev, p_h4_prev,
-              s1_h4_prev, s2_h4_prev, s3_h4_prev, s4_h4_prev, r1_h4_prev, r2_h4_prev, r3_h4_prev,
-              r4_h4_prev, p_h1_prev, s1_h1_prev, s2_h1_prev, s3_h1_prev, s4_h1_prev, r1_h1_prev,
-              r2_h1_prev, r3_h1_prev, r4_h1_prev, 1, 0]
-
-    filename = 'finalized_model.sav'
-    loaded_model = pickle.load(open(filename, 'rb'))
-    predicted = prediction(params, loaded_model)
-    print(predicted[0])
-
-    # If prediction resulted true, we can send buy command
-    if predicted[0] != 0:
-        send_mladen_buy_command()
-
-    # Update previous values for next predictions
-    update_mladen_prev(json_message['s4H1'], json_message['s3H1'], json_message['s2H1'], json_message['s1H1'],
-                       json_message['pivotH1'], json_message['r1H1'], json_message['r2H1'], json_message['r3H1'],
-                       json_message['r4H1'],
-                       json_message['s4H4'], json_message['s3H4'], json_message['s2H4'], json_message['s1H4'],
-                       json_message['pivotH4'], json_message['r1H4'], json_message['r2H4'], json_message['r3H4'],
-                       json_message['r4H4'],
-                       json_message['s4D1'], json_message['s3D1'], json_message['s2D1'], json_message['s1D1'],
-                       json_message['pivotD1'], json_message['r1D1'], json_message['r2D1'], json_message['r3D1'],
-                       json_message['r4D1'])
-
-
-def send_mladen_buy_command():
-    json_buy_message = {
-        "type": "mladenBuyForAll",
-    }
-    socket_send(json.dumps(json_buy_message))
-
-
-def send_mladen_sell_command():
-    json_sell_message = {
-        "type": "mladenSellForAll",
-    }
-    socket_send(json.dumps(json_sell_message))
+        # Load pretrained model and predict te result using it
+        filename = 'finalized_model.sav'
+        loaded_model = pickle.load(open(filename, 'rb'))
+        predicted = prediction(params, loaded_model)
+        print(predicted[0])
+        # If prediction resulted true, we can send buy command
+        if predicted[0] != 0:
+            json_prediction_message = {
+                "type": "mladenOpenPositionPredictionResponse",
+                "clientSideId": json_message['clientSideId'],
+                "predictionResult": predicted[0]
+            }
+            socket_send(json.dumps(json_prediction_message))
+    else:
+        print(f"open position prediction request received with invalid side: {json_message['side']}")
 
 
 def prediction(params, model):
