@@ -3,13 +3,38 @@ import numpy as np
 import pickle
 import socket
 import json
+import time
+import threading
 
 ziggurat_host = '195.133.36.135'
 ziggurat_port = 43000
 ziggurat_username = 's2'
 ziggurat_key = 'secret'
+ziggurat_ping_delay_seconds = 30
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(5)
+
+
+# Ping thread
+class PingThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        print("Starting ping thread")
+        ping_thread()
+
+
+# Socket receiver thread
+class SocketReceiverThread(threading.Thread):
+    def __init__(self):
+        threading.Thread.__init__(self)
+
+    def run(self):
+        print("Starting socket receiver thread")
+        while True:
+            socket_receive()
 
 
 # Connects to socket
@@ -107,6 +132,7 @@ def on_mladen_open_position_prediction_request(json_message):
                                    'r3 1h_prev','r4 1h_prev','buy','sell']
     """
 
+    print('Handling prediction request')
     if json_message['side'] == 'sell':
         # Sell
         params = [json_message['open'], json_message['high'], json_message['low'], json_message['close'],
@@ -132,15 +158,14 @@ def on_mladen_open_position_prediction_request(json_message):
         filename = 'finalized_model.sav'
         loaded_model = pickle.load(open(filename, 'rb'))
         predicted = prediction(params, loaded_model)
-        print(predicted[0])
-        # If prediction resulted true, we can send sell command
-        if predicted[0] != 0:
-            json_prediction_message = {
-                "type": "mladenOpenPositionPredictionResponse",
-                "clientSideId": json_message['clientSideId'],
-                "predictionResult": predicted[0]
-            }
-            socket_send(json.dumps(json_prediction_message))
+        print(f'Prediction result: {predicted[0]}')
+        # Send prediction result to client
+        json_prediction_message = {
+            "type": "mladenOpenPositionPredictionResponse",
+            "clientSideId": json_message['clientSideId'],
+            "predictionResult": int(predicted[0])
+        }
+        socket_send(json.dumps(json_prediction_message))
 
     elif json_message['side'] == 'buy':
         # Buy
@@ -166,15 +191,15 @@ def on_mladen_open_position_prediction_request(json_message):
         filename = 'finalized_model.sav'
         loaded_model = pickle.load(open(filename, 'rb'))
         predicted = prediction(params, loaded_model)
-        print(predicted[0])
-        # If prediction resulted true, we can send buy command
-        if predicted[0] != 0:
-            json_prediction_message = {
-                "type": "mladenOpenPositionPredictionResponse",
-                "clientSideId": json_message['clientSideId'],
-                "predictionResult": predicted[0]
-            }
-            socket_send(json.dumps(json_prediction_message))
+        print(f'Prediction result: {predicted[0]}')
+        # Send prediction result to client
+        json_prediction_message = {
+            "type": "mladenOpenPositionPredictionResponse",
+            "clientSideId": json_message['clientSideId'],
+            "predictionResult": int(predicted[0])
+        }
+        socket_send(json.dumps(json_prediction_message))
+
     else:
         print(f"open position prediction request received with invalid side: {json_message['side']}")
 
@@ -202,6 +227,21 @@ def prediction(params, model):
     return p
 
 
+def ping_thread():
+    ts = time.time()
+
+    while True:
+        time.sleep(1)
+        # Check time for ping
+        if time.time() - ts > ziggurat_ping_delay_seconds:
+            # Send ping message
+            json_ping_message = {
+                "type": "ping",
+            }
+            socket_send(json.dumps(json_ping_message))
+            ts = time.time()
+
+
 # Login to Ziggurat
 json_login_message = {
     "type": "login",
@@ -214,5 +254,13 @@ socket_connect()
 # Send login JSON data to socket server
 socket_send(json.dumps(json_login_message))
 
-while True:
-    socket_receive()
+# Ping thread
+thread_ping = PingThread()
+# Socket receiver thread
+thread_socket_receiver = SocketReceiverThread()
+
+thread_ping.start()
+thread_socket_receiver.start()
+
+thread_ping.join()
+thread_socket_receiver.join()
