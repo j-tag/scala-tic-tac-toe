@@ -55,6 +55,19 @@ def socket_connect():
     s.connect((ziggurat_host, ziggurat_port))
 
 
+# Login to Ziggurat API server
+def socket_login():
+    # Login to Ziggurat
+    json_login_message = {
+        "type": "login",
+        "name": ziggurat_username,
+        "key": ziggurat_key,
+    }
+
+    # Send login JSON data to socket server
+    socket_send(json.dumps(json_login_message))
+
+
 # This function will send a length delimited message based on our custom protocol to Ziggurat
 def socket_send(message):
     message_to_send = message + '\r\n'
@@ -69,6 +82,7 @@ def socket_send(message):
         # Socket error, retry creating socket
         print('Socket error. Reconnecting.')
         socket_connect()
+        socket_login()
 
 
 # This function will receive a length delimited message based on our custom protocol from Ziggurat
@@ -82,11 +96,13 @@ def socket_receive():
             if chunk == b'':
                 print("Socket connection broken")
                 socket_connect()
+                socket_login()
             handle_receive(chunk)
         except TimeoutError as err:
             print('Socket timeout')
             print(err.strerror)
             socket_connect()
+            socket_login()
 
 
 # Socket receive buffer
@@ -251,17 +267,9 @@ def ping_thread():
             ts = time.time()
 
 
-# Login to Ziggurat
-json_login_message = {
-    "type": "login",
-    "name": ziggurat_username,
-    "key": ziggurat_key,
-}
-
 socket_connect()
 
-# Send login JSON data to socket server
-socket_send(json.dumps(json_login_message))
+socket_login()
 
 # Ping thread
 thread_ping = PingThread()
