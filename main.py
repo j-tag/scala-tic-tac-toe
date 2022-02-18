@@ -72,8 +72,7 @@ def socket_login():
 def socket_send(message):
     message_to_send = message + '\r\n'
     request = len(message_to_send).to_bytes(4, 'big') + bytes(message_to_send, 'utf-8')
-
-    print('Sending:', request)
+    print(time.strftime("%H:%M:%S", time.localtime()), '- Sending:', request)
     try:
         sent = s.sendall(request)
         if sent == 0:
@@ -130,8 +129,7 @@ def handle_receive(chunk):
 
 
 def inspect_message(message):
-    print('New message arrived:')
-    print(message)
+    print(time.strftime("%H:%M:%S", time.localtime()), '- Message received: ', message)
     json_message = json.loads(message)
     if json_message['type'] == 'mladenOpenPositionPredictionRequest':
         on_mladen_open_position_prediction_request(json_message)
