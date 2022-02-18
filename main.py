@@ -5,6 +5,10 @@ import socket
 import json
 import time
 import threading
+import os
+
+# Make sure we had print output in terminal
+os.environ['PYTHONUNBUFFERED'] = '1'
 
 ziggurat_host = '195.133.36.135'
 ziggurat_port = 43000
@@ -73,11 +77,16 @@ def socket_receive():
         handle_receive(b'')
 
     while True:
-        chunk = s.recv(1024)
-        if chunk == b'':
-            print("socket connection broken")
+        try:
+            chunk = s.recv(1024)
+            if chunk == b'':
+                print("Socket connection broken")
+                socket_connect()
+            handle_receive(chunk)
+        except TimeoutError as err:
+            print('Socket timeout')
+            print(err.strerror)
             socket_connect()
-        handle_receive(chunk)
 
 
 # Socket receive buffer
